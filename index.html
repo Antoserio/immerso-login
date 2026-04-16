@@ -27,6 +27,14 @@
     cursor: none;
   }
 
+  input, button {
+    cursor: auto;
+  }
+
+  input[type="password"] {
+    cursor: text;
+  }
+
   /* Custom cursor */
   .cursor {
     position: fixed;
@@ -193,7 +201,6 @@
     text-align: center;
     outline: none;
     caret-color: var(--teal);
-    cursor: text;
   }
 
   input[type="password"]::placeholder {
