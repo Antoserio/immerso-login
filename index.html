@@ -390,17 +390,20 @@
       videoWrap.classList.add('active');
       video.play();
 
-      video.addEventListener('ended', () => {
-        window.location.href = url;
-      });
+      function redirectWithFade() {
+        videoWrap.style.transition = 'opacity 1s ease';
+        videoWrap.style.opacity = '0';
+        setTimeout(() => { window.location.href = url; }, 1000);
+      }
 
-      // Fallback if video fails
+      video.addEventListener('ended', redirectWithFade);
+
       video.addEventListener('error', () => {
         window.location.href = url;
       });
 
       setTimeout(() => {
-        if (!video.ended) window.location.href = url;
+        if (!video.ended) redirectWithFade();
       }, 15000);
 
     }, 800);
