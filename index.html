@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IMMERSO</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal: #00C9A7;
+    --teal-dim: rgba(0,201,167,0.15);
+    --teal-glow: rgba(0,201,167,0.4);
+    --dark: #060810;
+    --mid: #0D1117;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--dark);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Montserrat', sans-serif;
+    overflow: hidden;
+    cursor: none;
+  }
+
+  /* Custom cursor */
+  .cursor {
+    position: fixed;
+    width: 8px; height: 8px;
+    background: var(--teal);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    transition: transform 0.1s;
+    mix-blend-mode: screen;
+  }
+  .cursor-ring {
+    position: fixed;
+    width: 32px; height: 32px;
+    border: 1px solid rgba(0,201,167,0.5);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9998;
+    transition: transform 0.25s ease, width 0.2s, height 0.2s;
+    transform: translate(-50%, -50%);
+  }
+
+  /* Animated background */
+  .bg-grid {
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,201,167,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,201,167,0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+    animation: gridDrift 20s linear infinite;
+  }
+
+  @keyframes gridDrift {
+    0% { transform: translate(0,0); }
+    100% { transform: translate(60px, 60px); }
+  }
+
+  .bg-glow {
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 10% 20%, rgba(0,201,167,0.08) 0%, transparent 60%),
+      radial-gradient(ellipse 40% 40% at 90% 80%, rgba(0,150,120,0.06) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  /* Scan line */
+  .scanline {
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.08) 2px,
+      rgba(0,0,0,0.08) 4px
+    );
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  /* Main container */
+  .container {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    animation: fadeInUp 1.2s ease forwards;
+    opacity: 0;
+  }
+
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Logo */
+  .logo-wrap {
+    position: relative;
+    margin-bottom: 48px;
+  }
+
+  .logo-wrap::before {
+    content: '';
+    position: absolute;
+    inset: -20px;
+    background: radial-gradient(circle, rgba(0,201,167,0.12) 0%, transparent 70%);
+    border-radius: 50%;
+    animation: pulse 3s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 0.5; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.05); }
+  }
+
+  .logo {
+    width: 120px;
+    height: 120px;
+    object-fit: contain;
+    position: relative;
+    filter: drop-shadow(0 0 20px rgba(0,201,167,0.3));
+  }
+
+  /* Brand name */
+  .brand {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 13px;
+    letter-spacing: 8px;
+    color: rgba(0,201,167,0.5);
+    text-transform: uppercase;
+    margin-bottom: 56px;
+    animation: fadeInUp 1.2s ease 0.3s forwards;
+    opacity: 0;
+  }
+
+  /* Input field */
+  .input-wrap {
+    position: relative;
+    width: 280px;
+    margin-bottom: 32px;
+    animation: fadeInUp 1.2s ease 0.5s forwards;
+    opacity: 0;
+  }
+
+  .input-wrap::before {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--teal), transparent);
+    opacity: 0.4;
+  }
+
+  .input-wrap::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 50%; right: 50%;
+    height: 1px;
+    background: var(--teal);
+    transition: left 0.4s ease, right 0.4s ease;
+    opacity: 0;
+  }
+
+  .input-wrap:focus-within::after {
+    left: 0; right: 0;
+    opacity: 1;
+  }
+
+  input[type="password"] {
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    padding: 12px 0;
+    color: white;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 14px;
+    font-weight: 300;
+    letter-spacing: 4px;
+    text-align: center;
+    outline: none;
+    caret-color: var(--teal);
+  }
+
+  input[type="password"]::placeholder {
+    color: rgba(255,255,255,0.2);
+    letter-spacing: 3px;
+    font-size: 11px;
+    font-weight: 300;
+  }
+
+  /* Wake Up button */
+  .btn-wake {
+    position: relative;
+    background: transparent;
+    border: 1px solid rgba(0,201,167,0.4);
+    color: var(--teal);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 6px;
+    padding: 14px 56px;
+    cursor: none;
+    transition: all 0.3s ease;
+    overflow: hidden;
+    animation: fadeInUp 1.2s ease 0.7s forwards;
+    opacity: 0;
+  }
+
+  .btn-wake::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--teal);
+    transform: translateX(-100%);
+    transition: transform 0.4s ease;
+    z-index: -1;
+  }
+
+  .btn-wake:hover {
+    color: var(--dark);
+    border-color: var(--teal);
+    box-shadow: 0 0 40px rgba(0,201,167,0.3);
+  }
+
+  .btn-wake:hover::before {
+    transform: translateX(0);
+  }
+
+  .btn-wake:active {
+    transform: scale(0.97);
+  }
+
+  /* Corner decorations */
+  .corner {
+    position: fixed;
+    width: 40px; height: 40px;
+    opacity: 0.3;
+  }
+  .corner-tl { top: 24px; left: 24px; border-top: 1px solid var(--teal); border-left: 1px solid var(--teal); }
+  .corner-tr { top: 24px; right: 24px; border-top: 1px solid var(--teal); border-right: 1px solid var(--teal); }
+  .corner-bl { bottom: 24px; left: 24px; border-bottom: 1px solid var(--teal); border-left: 1px solid var(--teal); }
+  .corner-br { bottom: 24px; right: 24px; border-bottom: 1px solid var(--teal); border-right: 1px solid var(--teal); }
+
+  /* Error message */
+  .error-msg {
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: rgba(255,80,80,0.7);
+    margin-top: 16px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    font-weight: 300;
+    text-transform: uppercase;
+  }
+  .error-msg.visible { opacity: 1; }
+
+  /* Fade overlay */
+  .fade-overlay {
+    position: fixed;
+    inset: 0;
+    background: black;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 100;
+    transition: opacity 0.8s ease;
+  }
+  .fade-overlay.active {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  /* Video container */
+  .video-wrap {
+    position: fixed;
+    inset: 0;
+    background: black;
+    z-index: 200;
+    display: none;
+    align-items: center;
+    justify-content: center;
+  }
+  .video-wrap.active { display: flex; }
+
+  #intro-video {
+    width: 100%; height: 100%;
+    object-fit: cover;
+  }
+
+  /* Status indicator */
+  .status {
+    position: fixed;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    opacity: 0.3;
+    z-index: 10;
+  }
+  .status-dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--teal);
+    animation: blink 2s ease-in-out infinite;
+  }
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.2; }
+  }
+  .status-text {
+    font-size: 9px;
+    letter-spacing: 3px;
+    color: var(--teal);
+    font-weight: 300;
+    text-transform: uppercase;
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursor-ring"></div>
+
+<div class="bg-grid"></div>
+<div class="bg-glow"></div>
+<div class="scanline"></div>
+
+<div class="corner corner-tl"></div>
+<div class="corner corner-tr"></div>
+<div class="corner corner-bl"></div>
+<div class="corner corner-br"></div>
+
+<div class="container">
+  <div class="logo-wrap">
+    <img src="assets/logo2.png" alt="IMMERSO" class="logo">
+  </div>
+  <div class="brand">IMMERSO</div>
+
+  <div class="input-wrap">
+    <input type="password" id="pwd" placeholder="ACCESS CODE" autocomplete="off" spellcheck="false">
+  </div>
+
+  <button class="btn-wake" id="wakeBtn">WAKE UP</button>
+  <div class="error-msg" id="errMsg">ACCESS DENIED</div>
+</div>
+
+<div class="status">
+  <div class="status-dot"></div>
+  <span class="status-text">SYSTEM READY</span>
+</div>
+
+<div class="fade-overlay" id="fadeOverlay"></div>
+
+<div class="video-wrap" id="videoWrap">
+  <video id="intro-video" playsinline>
+    <source src="assets/intro.mp4" type="video/mp4">
+  </video>
+</div>
+
+<script>
+  // Cursor
+  const cursor = document.getElementById('cursor');
+  const ring = document.getElementById('cursor-ring');
+  let mx = 0, my = 0, rx = 0, ry = 0;
+
+  document.addEventListener('mousemove', e => {
+    mx = e.clientX; my = e.clientY;
+    cursor.style.transform = `translate(${mx - 4}px, ${my - 4}px)`;
+  });
+
+  function animRing() {
+    rx += (mx - rx) * 0.12;
+    ry += (my - ry) *.12;
+    ring.style.transform = `translate(${rx - 16}px, ${ry - 16}px)`;
+    requestAnimationFrame(animRing);
+  }
+  animRing();
+
+  // Clients config
+  const clients = {
+    "demoprueba": "https://vikyrealtimegirasomnis.netlify.app"
+  };
+
+  const pwd = document.getElementById('pwd');
+  const btn = document.getElementById('wakeBtn');
+  const err = document.getElementById('errMsg');
+  const fade = document.getElementById('fadeOverlay');
+  const videoWrap = document.getElementById('videoWrap');
+  const video = document.getElementById('intro-video');
+
+  function tryLogin() {
+    const val = pwd.value.trim().toLowerCase();
+    const url = clients[val];
+
+    if (!url) {
+      err.classList.add('visible');
+      pwd.style.animation = 'shake 0.4s ease';
+      setTimeout(() => {
+        err.classList.remove('visible');
+        pwd.style.animation = '';
+        pwd.value = '';
+      }, 1800);
+      return;
+    }
+
+    // Success — fade to black
+    fade.classList.add('active');
+
+    setTimeout(() => {
+      // Show video
+      videoWrap.classList.add('active');
+      video.play();
+
+      video.addEventListener('ended', () => {
+        window.location.href = url;
+      });
+
+      // Fallback if video fails
+      video.addEventListener('error', () => {
+        window.location.href = url;
+      });
+
+      setTimeout(() => {
+        if (!video.ended) window.location.href = url;
+      }, 15000);
+
+    }, 800);
+  }
+
+  btn.addEventListener('click', tryLogin);
+  pwd.addEventListener('keydown', e => {
+    if (e.key === 'Enter') tryLogin();
+  });
+
+  // Shake animation
+  const style = document.createElement('style');
+  style.textContent = `
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-8px); }
+      40% { transform: translateX(8px); }
+      60% { transform: translateX(-5px); }
+      80% { transform: translateX(5px); }
+    }
+  `;
+  document.head.appendChild(style);
+</script>
+</body>
+</html>
